@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        a.logout {
+            float: right;
+            text-decoration: none;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        a.logout:hover {
+            color: #c0392b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<h1>User Dashboard</h1>
+<a href="/logout" class="logout">Logout</a>
+
+<h2>Available Books</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book : ${books}">
+        <td th:text="${book.id}"></td>
+        <td th:text="${book.title}"></td>
+        <td th:text="${book.author}"></td>
+        <td th:text="${book.available ? 'Available' : 'Borrowed'}"></td>
+        <td>
+            <!-- Borrow button for available books -->
+            <a th:if="${book.available}" th:href="@{'/user/request/' + ${book.id}}">Borrow</a>
+
+            <!-- Return button for borrowed books owned by the logged-in user -->
+            <span th:if="${!book.available}">
+                <a th:each="req : ${book.borrowRequests}"
+                   th:if="${req.user != null and req.user.id == ${#httpSession.getAttribute('user').id} and req.status == 'APPROVED'}"
+                   th:href="@{'/user/return/' + ${req.id}}">Return</a>
+            </span>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

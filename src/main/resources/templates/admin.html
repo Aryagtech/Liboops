@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 20px;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            margin-right: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Logout link */
+        a[style*="float:right"] {
+            float: right;
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        a[style*="float:right"]:hover {
+            background-color: #c0392b;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Form Styles */
+        form {
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 15px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            margin: 5px 10px 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Error message */
+        p[th\\:if] {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<h1>Admin Dashboard</h1>
+<a href="/logout" style="float:right;">Logout</a>
+<p th:if="${error}" th:text="${error}" style="color:red; font-weight:bold;"></p>
+
+<h2>All Books</h2>
+<table border="1">
+<thead>
+<tr><th>ID</th><th>Title</th><th>Author</th><th>Status</th><th>Actions</th></tr>
+</thead>
+<tbody>
+<tr th:each="book : ${books}">
+    <td th:text="${book.id}"></td>
+    <td th:text="${book.title}"></td>
+    <td th:text="${book.author}"></td>
+    <td th:text="${book.available ? 'Available' : 'Borrowed'}"></td>
+    <td>
+        <a th:if="${book.available}" th:href="@{'/admin/delete/' + ${book.id}}">Delete</a>
+        <a th:if="${!book.available}" th:href="@{'/admin/set-available/' + ${book.id}}">Set Available</a>
+    </td>
+</tr>
+</tbody>
+</table>
+
+<h2>Add New Book</h2>
+<form action="/admin/add" method="post">
+    Title: <input type="text" name="title" required>
+    Author: <input type="text" name="author" required>
+    <button type="submit">Add</button>
+</form>
+
+<h2>Borrow Requests</h2>
+<table border="1">
+<thead>
+<tr><th>ID</th><th>User</th><th>Book</th><th>Status</th><th>Actions</th></tr>
+</thead>
+<tbody>
+<tr th:each="req : ${requests}">
+    <td th:text="${req.id}"></td>
+    <td th:text="${req.user != null ? req.user.username : 'Unknown'}"></td>
+    <td th:text="${req.book != null ? req.book.title : 'Unknown Book'}"></td>
+    <td th:text="${req.status}"></td>
+    <td>
+        <a th:if="${req.status.toUpperCase() == 'PENDING'}" th:href="@{'/admin/approve/' + ${req.id}}">Approve</a>
+        <a th:if="${req.status.toUpperCase() == 'PENDING'}" th:href="@{'/admin/reject/' + ${req.id}}">Reject</a>
+        <a th:if="${req.status.toUpperCase() == 'APPROVED'}" th:href="@{'/admin/mark-returned/' + ${req.id}}">Mark as Returned</a>
+    </td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
